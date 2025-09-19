@@ -1504,6 +1504,8 @@ name = "yuhe"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "polyscope" },
     { name = "rich" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -1536,6 +1538,7 @@ requires-dist = [
     { name = "mkdocs-static-i18n", extras = ["material"], marker = "extra == 'dev'", specifier = ">=1.3.0" },
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'", specifier = ">=0.26.1" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.991" },
+    { name = "numpy", specifier = ">=2.2.6" },
     { name = "polyscope", specifier = ">=2.5.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=2.20.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.2.0" },
