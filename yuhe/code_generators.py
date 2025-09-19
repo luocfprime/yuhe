@@ -84,13 +84,13 @@ auto is_point_in_box = []({point_type} {x_coord}, {point_type} {y_coord}, {point
 
     // Dot products onto each axis
     const {point_type} proj_x = dx*U[0] + dy*U[1] + dz*U[2];
-    if (fabs(proj_x) > hx) return false;
+    if (std::abs(proj_x) > hx) return false;
 
     const {point_type} proj_y = dx*V[0] + dy*V[1] + dz*V[2];
-    if (fabs(proj_y) > hy) return false;
+    if (std::abs(proj_y) > hy) return false;
 
     const {point_type} proj_z = dx*W[0] + dy*W[1] + dz*W[2];
-    if (fabs(proj_z) > hz) return false;
+    if (std::abs(proj_z) > hz) return false;
 
     return true;
 }};
