@@ -15,6 +15,7 @@ from yuhe.code_generators import (
     generate_cpp_function,
     generate_python_function,
 )
+from yuhe.config import AutoSaveConfig
 from yuhe.geometry_utils import (
     CANONICAL_BOX_FACES,
     CANONICAL_BOX_VERTICES,
@@ -45,6 +46,13 @@ DEFAULT_BOX_PARAM = MappingProxyType({
 
 class PolyscopeApp:
     def __init__(self, mesh_path: str | Path):
+        try:
+            self.config = AutoSaveConfig(".yuhe.json")
+            logger.debug("Loaded config from .yuhe.json")
+        except FileNotFoundError:
+            logger.debug("Using default config.")
+            self.config = AutoSaveConfig(".yuhe.json", DEFAULT_BOX_PARAM)
+
         logger.debug(f"Loading mesh from {mesh_path}")
         self.input_mesh = trimesh.load_mesh(mesh_path)
 
@@ -62,18 +70,54 @@ class PolyscopeApp:
         self.picked_points: list[np.ndarray] = []
         self.picked_cloud = None
 
-        # Box parameters
-        self.box_params: dict[str, float] = dict(DEFAULT_BOX_PARAM)
         # Register box
         self.box_mesh = ps.register_surface_mesh(
             "box", CANONICAL_BOX_VERTICES, CANONICAL_BOX_FACES, color=(1.0, 0.0, 0.0), transparency=0.4
         )
         self._update_box_geometry()
 
-        # Code-gen state
-        self.selected_language: Literal["cpp", "python"] = "cpp"
-        self.cpp_point_type: Literal["double", "float"] = "double"
-        self.coord_names = ["x", "y", "z"]
+    @property
+    def box_params(self) -> dict[str, float]:
+        keys = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz", "padding"]
+        for k in keys:
+            if k not in self.config:
+                self.config[k] = DEFAULT_BOX_PARAM[k]
+
+        return {k: self.config[k] for k in keys}
+
+    def update_box_params(self, params: dict[str, float]):
+        for k, v in params.items():
+            self.config[k] = float(v)
+
+    @property
+    def selected_language(self) -> Literal["cpp", "python"]:
+        if "selected_language" not in self.config:
+            self.config["selected_language"] = "cpp"
+        return self.config["selected_language"]
+
+    @selected_language.setter
+    def selected_language(self, lang: Literal["cpp", "python"]):
+        self.config["selected_language"] = lang
+
+    @property
+    def coord_names(self) -> list[str]:
+        if "coord_names" not in self.config:
+            self.config["coord_names"] = ["x", "y", "z"]
+        return self.config["coord_names"]
+
+    @coord_names.setter
+    def coord_names(self, names: list[str]):
+        self.config["coord_names"] = names
+
+    @property
+    def cpp_point_type(self) -> Literal["double", "float"]:
+        if "cpp_point_type" not in self.config:
+            self.config["cpp_point_type"] = "double"
+        return self.config["cpp_point_type"]
+
+    @cpp_point_type.setter
+    def cpp_point_type(self, point_type: Literal["double", "float"]):
+        self.config["cpp_point_type"] = point_type
 
     def _update_box_geometry(self):
         transform = compute_transform_matrix(**self.box_params)
@@ -82,7 +126,7 @@ class PolyscopeApp:
     def _fit_bbox_to_points_and_update_params(self, points: np.ndarray) -> bool:
         try:
             fitted_params = fit_obb_to_points(points, padding=self.box_params["padding"])
-            self.box_params.update(fitted_params)
+            self.update_box_params(fitted_params)
         except ValueError as e:
             if "At least 4 points are required to fit an OBB" not in str(e):
                 logger.warning(f"Could not fit bounding box: {e}")
@@ -168,7 +212,7 @@ class PolyscopeApp:
     def _ui_reset(self):
         if psim.Button("Reset"):
             # 1. reset box
-            self.box_params = dict(DEFAULT_BOX_PARAM)
+            self.update_box_params(dict(DEFAULT_BOX_PARAM))
             self._update_box_geometry()
 
             # 2. reset points
@@ -225,7 +269,7 @@ class PolyscopeApp:
 
         current_ps_transform = self.box_mesh.get_transform()
         (tx, ty, tz), (rx, ry, rz), (sx_e, sy_e, sz_e) = decompose_matrix(current_ps_transform)
-        self.box_params.update({
+        self.update_box_params({
             "tx": tx,
             "ty": ty,
             "tz": tz,
