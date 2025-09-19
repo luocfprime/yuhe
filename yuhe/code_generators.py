@@ -1,3 +1,4 @@
+import json
 from typing import Literal
 
 import numpy as np
@@ -37,12 +38,29 @@ def generate_cpp_function(
         inv_transform_rows.append("    { " + row_str + " }")
     inv_transform_str = "{\n" + ",\n".join(inv_transform_rows) + "\n};"
 
+    params = {
+        "tx": tx,
+        "ty": ty,
+        "tz": tz,
+        "rx": rx,
+        "ry": ry,
+        "rz": rz,
+        "sx": sx,
+        "sy": sy,
+        "sz": sz,
+        "padding": padding,
+    }
+    params_json = json.dumps(params, ensure_ascii=False)
+
     return f"""
 auto is_point_in_box = []({point_type} {x_coord}, {point_type} {y_coord}, {point_type} {z_coord}) -> bool {{
+    // {params_json}
+
     {point_type} inv_transform[4][4] = {inv_transform_str}
 
     {point_type} p_world[4] = {{{x_coord}, {y_coord}, {z_coord}, 1.0}};
     {point_type} p_local[4];
+
     for(int i=0;i<4;++i) {{
         p_local[i] = 0;
         for(int j=0;j<4;++j) {{
@@ -74,15 +92,33 @@ def generate_python_function(
     transform = compute_transform_matrix(tx, ty, tz, rx, ry, rz, sx, sy, sz, padding)
     inverse_transform = np.linalg.inv(transform)
 
+    # Construct numpy array string
     inv_str = "    inv_transform = np.array([\n"
     for row in inverse_transform:
         inv_str += "        [" + ", ".join(f"{val:.10f}" for val in row) + "],\n"
     inv_str = inv_str.rstrip(",\n") + "\n    ])\n"
 
+    # --- New: embed JSON params comment (no cpp-only fields)
+    params = {
+        "tx": tx,
+        "ty": ty,
+        "tz": tz,
+        "rx": rx,
+        "ry": ry,
+        "rz": rz,
+        "sx": sx,
+        "sy": sy,
+        "sz": sz,
+        "padding": padding,
+    }
+    params_json = json.dumps(params, ensure_ascii=False)
+
     return f"""
 import numpy as np
 
 def is_point_in_box({x_coord}: float, {y_coord}: float, {z_coord}: float) -> bool:
+    # Parameters: {params_json}
+
 {inv_str}
     p_world = np.array([{x_coord}, {y_coord}, {z_coord}, 1.0])
     p_local = inv_transform @ p_world
