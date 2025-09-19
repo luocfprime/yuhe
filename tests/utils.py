@@ -51,7 +51,7 @@ def plot_box_and_points(box_mesh, points, inside_mask, mismatch_mask, filename="
     print(f"Visualization saved -> {filename}")
 
 
-def generate_test_grid(bounds=(-2, 2), num_points_per_dim=10, perturbance=0.01):
+def generate_test_grid(bounds=(-3, 3), num_points_per_dim=10, perturbance=0.01):
     """Generates a 3D grid of points for testing, with small random perturbations."""
     lin = np.linspace(bounds[0], bounds[1], num_points_per_dim)
     xx, yy, zz = np.meshgrid(lin, lin, lin, indexing="ij")

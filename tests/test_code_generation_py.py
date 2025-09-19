@@ -36,13 +36,15 @@ from yuhe.geometry_utils import compute_transform_matrix
 )
 @pytest.mark.parametrize("coord_names", [["x", "y", "z"], ["a", "b", "c"]])
 def test_generated_python_function_matches_trimesh(box_config, coord_names):
-    grid_points = generate_test_grid(bounds=(-2, 2), num_points_per_dim=8)
+    grid_points = generate_test_grid()
 
     # Build trimesh Box: extents are sx,sy,sz; transform already has padding applied
     transform = compute_transform_matrix(**box_config)
     box_mesh = make_box_mesh(transform)
 
     gt = box_mesh.contains(grid_points)
+
+    assert not gt.all(), "Box mesh contains all points. Something is wrong with the test setup."
 
     # Generate Python function dynamically and exec
     code = generate_python_function(**box_config, coord_names=coord_names)

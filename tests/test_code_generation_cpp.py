@@ -125,12 +125,14 @@ def test_generated_cpp_function_matches_trimesh(box_config, point_type, coord_na
     with tempfile.TemporaryDirectory() as tmpdir_name:
         tmp_path = Path(tmpdir_name)
 
-        grid_points = generate_test_grid(bounds=(-3, 3), num_points_per_dim=10)  # Expand grid for better coverage
+        grid_points = generate_test_grid()
         transform = compute_transform_matrix(**box_config)
 
         # Use trimesh to get ground truth for point inclusion
         box_mesh = make_box_mesh(transform)
         gt = box_mesh.contains(grid_points)
+
+        assert not gt.all(), "Box mesh contains all points. Something is wrong with the test setup."
 
         cpp_func_code = generate_cpp_function(**box_config, point_type=point_type, coord_names=coord_names)
 
