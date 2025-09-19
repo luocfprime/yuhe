@@ -1,5 +1,8 @@
 # yuhe
 
+[![Python Versions](https://img.shields.io/pypi/pyversions/yuhe)](https://pypi.org/project/yuhe/)
+[![PyPI Version](https://img.shields.io/pypi/v/yuhe)](https://pypi.org/project/yuhe/)
+
 Interactive 3D bounding box selector that generates point inclusion functions.
 
 - **Git repository**: <https://github.com/luocfprime/yuhe/>
@@ -8,33 +11,47 @@ Interactive 3D bounding box selector that generates point inclusion functions.
 - **Documentation** <https://luocfprime.github.io/yuhe/>
 
 
-## Getting started with your project
+## Install
 
-### 1. Set Up Your Development Environment
+Prerequisites: You must have at least one Python package manager installed (e.g. [uv](https://docs.astral.sh/uv/getting-started/installation/)).
 
-Install the environment and the pre-commit hooks with
-
-```bash
-make install
-```
-
-This will also generate your `uv.lock` file
-
-### 2. Commit the changes
-
-Commit changes to your repository with
+Install it from PyPI:
 
 ```bash
-git add .
-git commit -m 'Fix formatting issues'
-git push origin main
+uv tool install yuhe
 ```
 
-You are now ready to start development on your project!
+Or, if you want to run it once without installing it, you can use the `uv run` command:
 
-For activating the automatic documentation with MkDocs, see [here](https://matrig.github.io/minicookiecutter/features/mkdocs/#enabling-the-documentation-on-github).
+```bash
+uv run --with yuhe yuhe xxx  # xxx being the subcommand you want to run
+```
 
 
----
+## Usage
 
-Repository initiated with [matrig/minicookiecutter](https://github.com/matrig/minicookiecutter).
+```text
+$ yuhe -h
+
+ Usage: yuhe [OPTIONS] MESH_PATH
+
+ Interactive 3D bounding box selector that generates point inclusion functions.
+
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ *    mesh_path      FILE  Path to mesh file (e.g. .stl file) [required]                                                                         │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --log-level           -l      TEXT  Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL) [default: INFO]                               │
+│ --install-completion                Install completion for the current shell.                                                                   │
+│ --show-completion                   Show completion for the current shell, to copy it or customize the installation.                            │
+│ --help                -h            Show this message and exit.                                                                                 │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## License
+
+MIT.
