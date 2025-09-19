@@ -1,6 +1,6 @@
 [project]
 name = "yuhe"
-version = "0.0.2"
+version = "0.0.3"
 description = "Interactive 3D bounding box selector that generates point inclusion functions."
 authors = [{ name = "Chaofan Luo" }]
 readme = "README.md"
