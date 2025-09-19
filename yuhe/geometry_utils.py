@@ -6,6 +6,36 @@ import trimesh
 logger = logging.getLogger(__name__)
 
 
+CANONICAL_BOX_VERTICES = np.array(
+    [
+        [-0.5, -0.5, -0.5],
+        [0.5, -0.5, -0.5],
+        [0.5, 0.5, -0.5],
+        [-0.5, 0.5, -0.5],
+        [-0.5, -0.5, 0.5],
+        [0.5, -0.5, 0.5],
+        [0.5, 0.5, 0.5],
+        [-0.5, 0.5, 0.5],
+    ],
+    dtype=float,
+)
+
+CANONICAL_BOX_FACES = np.array([
+    [0, 1, 2],
+    [0, 2, 3],
+    [4, 5, 6],
+    [4, 6, 7],
+    [0, 1, 5],
+    [0, 5, 4],
+    [2, 3, 7],
+    [2, 7, 6],
+    [1, 2, 6],
+    [1, 6, 5],
+    [0, 3, 7],
+    [0, 7, 4],
+])
+
+
 def normalize_angle(a: float) -> float:
     """Normalizes an angle to be within (-180, 180]."""
     a %= 360.0

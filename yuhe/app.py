@@ -15,6 +15,8 @@ from yuhe.code_generators import (
     generate_python_function,
 )
 from yuhe.geometry_utils import (
+    CANONICAL_BOX_FACES,
+    CANONICAL_BOX_VERTICES,
     compute_transform_matrix,
     decompose_matrix,
     fit_obb_to_points,
@@ -59,38 +61,9 @@ class PolyscopeApp:
             "padding": 0.0,
         }
 
-        # Canonical cube vertices
-        self.canonical_box_vertices = np.array(
-            [
-                [-0.5, -0.5, -0.5],
-                [0.5, -0.5, -0.5],
-                [0.5, 0.5, -0.5],
-                [-0.5, 0.5, -0.5],
-                [-0.5, -0.5, 0.5],
-                [0.5, -0.5, 0.5],
-                [0.5, 0.5, 0.5],
-                [-0.5, 0.5, 0.5],
-            ],
-            dtype=float,
-        )
-        self.cube_faces = np.array([
-            [0, 1, 2],
-            [0, 2, 3],
-            [4, 5, 6],
-            [4, 6, 7],
-            [0, 1, 5],
-            [0, 5, 4],
-            [2, 3, 7],
-            [2, 7, 6],
-            [1, 2, 6],
-            [1, 6, 5],
-            [0, 3, 7],
-            [0, 7, 4],
-        ])
-
         # Register box
         self.box_mesh = ps.register_surface_mesh(
-            "box", self.canonical_box_vertices, self.cube_faces, color=(1.0, 0.0, 0.0), transparency=0.4
+            "box", CANONICAL_BOX_VERTICES, CANONICAL_BOX_FACES, color=(1.0, 0.0, 0.0), transparency=0.4
         )
         self._update_box_geometry()
 
