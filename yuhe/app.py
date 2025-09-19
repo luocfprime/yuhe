@@ -1,5 +1,4 @@
 import logging
-import sys
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Literal
@@ -8,8 +7,6 @@ import numpy as np
 import polyscope as ps
 import polyscope.imgui as psim
 import trimesh
-from rich.console import Console
-from rich.syntax import Syntax
 
 from yuhe.code_generators import (
     generate_cpp_function,
@@ -27,8 +24,6 @@ from yuhe.geometry_utils import (
 from yuhe.ui_utils import ui_combo, ui_item_width, ui_tree_node
 
 logger = logging.getLogger(__name__)
-console = Console(file=sys.stdout)
-
 
 DEFAULT_BOX_PARAM = MappingProxyType({
     "tx": 0.0,
@@ -51,7 +46,7 @@ class PolyscopeApp:
             logger.debug("Loaded config from .yuhe.json")
         except FileNotFoundError:
             logger.debug("Using default config.")
-            self.config = AutoSaveConfig(".yuhe.json", DEFAULT_BOX_PARAM)
+            self.config = AutoSaveConfig(".yuhe.json")
 
         logger.debug(f"Loading mesh from {mesh_path}")
         self.input_mesh = trimesh.load_mesh(mesh_path)
@@ -173,13 +168,13 @@ class PolyscopeApp:
         }.items():
             changed, val = psim.DragFloat(k, self.box_params[k], s, -1000, 1000)
             if changed:
-                self.box_params[k] = normalize_angle(val) if k in ["rx", "ry", "rz"] else val
+                self.update_box_params({k: normalize_angle(val) if k in ["rx", "ry", "rz"] else val})
                 self._update_box_geometry()
 
     def _handle_padding_slider(self):
         changed, val = psim.DragFloat("padding", self.box_params["padding"], 0.01, 0, 1000)
         if changed:
-            self.box_params["padding"] = max(0.0, val)
+            self.update_box_params({"padding": max(0.0, val)})
             if self.picked_points:
                 pts_np = np.array(self.picked_points)
                 if self._fit_bbox_to_points_and_update_params(pts_np):
@@ -247,9 +242,8 @@ class PolyscopeApp:
             else:
                 code = generate_python_function(**params, coord_names=self.coord_names)
 
-            console.print("\nGenerated Code:")
-            syntax = Syntax(code, self.selected_language)
-            console.print(syntax)
+            print("\nGenerated Code:")
+            print(code)
 
     def _ui_code_generation(self):
         """Main wrapper for code generation controls."""
