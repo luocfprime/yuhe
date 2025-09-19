@@ -21,6 +21,7 @@ classifiers = [
 dependencies = [
     "polyscope>=2.5.0",
     "rich>=14.1.0",
+    "scipy>=1.15.3",
     "trimesh>=4.8.2",
     "typer>=0.17.4",
 ]

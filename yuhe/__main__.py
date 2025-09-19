@@ -1,9 +1,7 @@
-# flake8: noqa: B008
-
 import logging
 from pathlib import Path
+from typing import Annotated
 
-import trimesh
 import typer
 
 from yuhe.__about__ import __application__
@@ -38,17 +36,29 @@ def configure_logging(log_level: str):
 
 @app.command()
 def _(
-    mesh_path: Path = typer.Argument(
-        help="Path to mesh file (e.g. .stl file)",
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
+    mesh_path: Annotated[
+        Path,
+        typer.Argument(
+            help="Path to mesh file (e.g. .stl file)",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+        ),
+    ],
+    log_level: str = typer.Option(
+        "INFO",
+        "--log-level",
+        "-l",
+        help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+        case_sensitive=False,
     ),
 ):
     """Interactive 3D bounding box selector that generates point inclusion functions."""
-    
-    
+    configure_logging(log_level)
+    app_instance = PolyscopeApp(mesh_path)
+    app_instance.run()
+
 
 def main():
     app()
