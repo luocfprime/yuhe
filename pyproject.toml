@@ -18,7 +18,12 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-dependencies = []
+dependencies = [
+    "polyscope>=2.5.0",
+    "rich>=14.1.0",
+    "trimesh>=4.8.2",
+    "typer>=0.17.4",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -35,6 +40,9 @@ dev = [
     "mkdocs-macros-plugin>=1.3.9",
     "tomlkit>=0.13.3",
 ]
+
+[project.scripts]
+yuhe = "yuhe.__main__:main"
 
 [project.urls]
 Homepage = "https://luocfprime.github.io/yuhe/"
