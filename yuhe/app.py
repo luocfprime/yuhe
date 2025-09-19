@@ -156,6 +156,15 @@ class PolyscopeApp:
         if changed:
             self.box_mesh.set_transform_gizmo_enabled(enable_gizmo)
 
+    def _ui_show_points(self):
+        changed, show_points = psim.Checkbox(
+            "Show Points", self.picked_cloud is not None and self.picked_cloud.is_enabled()
+        )
+        if changed:
+            if self.picked_cloud is None:  # Do nothing if not exist
+                return
+            self.picked_cloud.set_enabled(show_points)
+
     def _ui_reset(self):
         if psim.Button("Reset"):
             # 1. reset box
@@ -231,6 +240,8 @@ class PolyscopeApp:
         self._handle_transform_sliders()
         self._handle_padding_slider()
         self._ui_enable_gizmo()
+        psim.SameLine()
+        self._ui_show_points()
         psim.SameLine()
         self._ui_reset()
         self._ui_code_generation()
