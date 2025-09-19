@@ -7,6 +7,10 @@ from yuhe.geometry_utils import compute_transform_matrix
 CANONICAL_MIN_V = np.array([-0.5, -0.5, -0.5])
 CANONICAL_MAX_V = np.array([0.5, 0.5, 0.5])
 
+# read only constants
+CANONICAL_MIN_V.setflags(write=False)
+CANONICAL_MAX_V.setflags(write=False)
+
 
 def generate_cpp_function(
     tx: float,

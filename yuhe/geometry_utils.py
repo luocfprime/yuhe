@@ -35,6 +35,10 @@ CANONICAL_BOX_FACES = np.array([
     [0, 7, 4],
 ])
 
+# read only constants
+CANONICAL_BOX_VERTICES.setflags(write=False)
+CANONICAL_BOX_FACES.setflags(write=False)
+
 
 def normalize_angle(a: float) -> float:
     """Normalizes an angle to be within (-180, 180]."""

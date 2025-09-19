@@ -1,6 +1,7 @@
 import logging
 import sys
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Literal
 
 import numpy as np
@@ -28,6 +29,20 @@ logger = logging.getLogger(__name__)
 console = Console(file=sys.stdout)
 
 
+DEFAULT_BOX_PARAM = MappingProxyType({
+    "tx": 0.0,
+    "ty": 0.0,
+    "tz": 0.0,
+    "rx": 0.0,
+    "ry": 0.0,
+    "rz": 0.0,
+    "sx": 1.0,
+    "sy": 1.0,
+    "sz": 1.0,
+    "padding": 0.0,
+})
+
+
 class PolyscopeApp:
     def __init__(self, mesh_path: str | Path):
         logger.debug(f"Loading mesh from {mesh_path}")
@@ -48,19 +63,7 @@ class PolyscopeApp:
         self.picked_cloud = None
 
         # Box parameters
-        self.box_params: dict[str, float] = {
-            "tx": 0.0,
-            "ty": 0.0,
-            "tz": 0.0,
-            "rx": 0.0,
-            "ry": 0.0,
-            "rz": 0.0,
-            "sx": 1.0,
-            "sy": 1.0,
-            "sz": 1.0,
-            "padding": 0.0,
-        }
-
+        self.box_params: dict[str, float] = dict(DEFAULT_BOX_PARAM)
         # Register box
         self.box_mesh = ps.register_surface_mesh(
             "box", CANONICAL_BOX_VERTICES, CANONICAL_BOX_FACES, color=(1.0, 0.0, 0.0), transparency=0.4
@@ -73,9 +76,7 @@ class PolyscopeApp:
         self.coord_names = ["x", "y", "z"]
 
     def _update_box_geometry(self):
-        transform = compute_transform_matrix(**{
-            k: self.box_params[k] for k in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz", "padding"]
-        })
+        transform = compute_transform_matrix(**self.box_params)
         self.box_mesh.set_transform(transform)
 
     def _fit_bbox_to_points_and_update_params(self, points: np.ndarray) -> bool:
@@ -150,6 +151,22 @@ class PolyscopeApp:
                 if psim.Selectable("python", self.selected_language == "python")[0]:
                     self.selected_language = "python"
 
+    def _ui_enable_gizmo(self):
+        changed, enable_gizmo = psim.Checkbox("Enable Gizmo", self.box_mesh.get_transform_gizmo_enabled())
+        if changed:
+            self.box_mesh.set_transform_gizmo_enabled(enable_gizmo)
+
+    def _ui_reset(self):
+        if psim.Button("Reset"):
+            # 1. reset box
+            self.box_params = dict(DEFAULT_BOX_PARAM)
+            self._update_box_geometry()
+
+            # 2. reset points
+            self.picked_points = []
+            if self.picked_cloud:
+                ps.remove_point_cloud("picked_points", error_if_absent=False)
+
     def _ui_cpp_options(self):
         if self.selected_language == "cpp":
             with ui_combo("Point Type", self.cpp_point_type) as expanded:
@@ -213,6 +230,9 @@ class PolyscopeApp:
 
         self._handle_transform_sliders()
         self._handle_padding_slider()
+        self._ui_enable_gizmo()
+        psim.SameLine()
+        self._ui_reset()
         self._ui_code_generation()
         self._update_box_geometry()
 
