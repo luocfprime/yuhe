@@ -18,7 +18,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "numpy>=2.2.6",
+    "numpy>=1.26.4",
     "polyscope>=2.5.0",
     "scipy>=1.15.3",
     "trimesh>=4.8.2",
